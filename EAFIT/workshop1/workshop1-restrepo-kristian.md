@@ -64,3 +64,59 @@ Lista numerada con cada término en negritas, seguido de su descripción breve.
 
 ---
 
+## 2. Definiciones
+### 2.1. Prompt usado
+**Contexto:** Eres un arquitecto de información y experto en ciencia de datos con 15 años de experiencia. Debes crear un diagrama de relaciones conceptuales para una audiencia con conocimientos básicos en tecnología, que incluya los 8 conceptos clave del área.
+
+**Objetivo:** Generar un diagrama que muestre de manera precisa y visualmente clara las relaciones jerárquicas y de dependencia entre los siguientes conceptos (con sus definiciones proporcionadas anteriormente):
+- Big Data
+- Machine Learning
+- Inteligencia Artificial
+- Ciencia de Datos
+- Deep Learning
+- Minería de Datos
+- Inteligencia de Negocios
+- Estadística
+
+**Instrucciones específicas:**
+- Relaciones jerárquicas: Mustra claramente qué conceptos son subcampos de otros (ej: Deep Learning ⊂ Machine Learning ⊂ Inteligencia Artificial).
+- Dependencias: Indica qué áreas dependen de otras para su funcionamiento (ej: Ciencia de Datos depende de Estadística).
+- Claridad visual:
+    - Usa subgraphs para agrupar conceptos relacionados.
+    - Aplica colores diferenciados para cada categoría conceptual.
+    - Mantén las etiquetas en español.
+    - Evita el cruce excesivo de líneas.
+
+**Formato de salida:**
+Código del diagrama con Mermaid.js
+
+
+### 2.2. Manejo de respuestas (LLMs) y refinamiento de diagrama.
+1. DeepSeek fue quien, en un inicio, brindó resultados más apropiados en comparación con ChatGPT. Al realizar el primer prompt, me entregó un diagrama con todos los componentes, aunque con verbos en las relaciones poco significativos y un orden bastante desorganizado.
+
+    ![alt text](image.png)
+
+2. Posteriormente, le pedí que lo organizara utilizando colores y texto más descriptivo sobre cada componente. Sin embargo, después de varios intentos nunca logró producir un buen resultado, ya que parece no saber cómo manejar colores con Mermaid.js, generando constantemente errores de sintaxis. En un punto incluso perdió el contexto, entregando un diagrama más atractivo y organizado, pero sin detallar adecuadamente el texto de las relaciones.
+
+    ![alt text](_assets/image-1.png)
+
+3. Finalmente, decidí dejar de lado los colores y, pasándole nuevamente el texto de la primera sección, logró generar un resultado mucho más preciso.
+
+    ![alt text](_assets/image-2.png)
+
+4. Decidí probar con ChatGPT. El primer resultado fue el mostrado en la imagen: un diagrama muy pobre, por lo que opté por utilizar lo generado por DeepSeek como base para los pasos posteriores.
+
+    ![alt text](_assets/image-3.png)
+
+5. Una vez partiendo de la base de DeepSeek, parece ser que ChatGPT sí sabía utilizar correctamente los colores para mejorar el estilo del diagrama. No obstante, algunos elementos se sobreponían entre sí y el resultado final no representaba del todo el orden que buscaba.
+
+    ![alt text](_assets/image-4.png)
+
+6. Finalmente, acudí a Cloud, dado que había escuchado que era bueno para este tipo de tareas. Este organizó el diagrama con una estructura flexible más adecuada, definió mejor las relaciones entre componentes (tal como le había solicitado anteriormente) y me entregó el diagrama final.
+
+    ![alt text](_assets/image-5.png)
+
+### 2.3. Notas personales.
+- En definitiva, el potencial de iterar y utilizar diferentes LLMs permite aprovechar las capacidades únicas de cada uno, según lo que se busca.
+- Fue un proceso largo, ya que tuve que lidiar con DeepSeek, que no interpretaba correctamente la sintaxis. Sin embargo, considero que el resultado final fue excelente.
+- Nuevamente, destaco la importancia de combinar distintos LLMs para obtener resultados más precisos.
