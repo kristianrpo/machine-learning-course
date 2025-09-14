@@ -116,7 +116,8 @@ Código del diagrama con Mermaid.js
 
     ![alt text](_assets/image-5.png)
 
-### 2.3. Notas personales.
+### 2.3. Notas personales
 - En definitiva, el potencial de iterar y utilizar diferentes LLMs permite aprovechar las capacidades únicas de cada uno, según lo que se busca.
 - Fue un proceso largo, ya que tuve que lidiar con DeepSeek, que no interpretaba correctamente la sintaxis. Sin embargo, considero que el resultado final fue excelente.
 - Nuevamente, destaco la importancia de combinar distintos LLMs para obtener resultados más precisos.
+

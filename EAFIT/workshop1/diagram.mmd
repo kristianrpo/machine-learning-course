@@ -1,0 +1,65 @@
+---
+config:
+  layout: elk
+---
+flowchart TD
+ subgraph EST["📊 Estadística"]
+        EST_core["Fundamento matemático"]
+  end
+ subgraph BD["🗄️ Big Data"]
+        BD_core[("Volumen, Velocidad,<br>Variedad, Veracidad, Valor")]
+  end
+ subgraph CD["🔬 Ciencia de Datos"]
+        CD_core["Estadística, Programación<br>y Conocimiento de dominio"]
+  end
+ subgraph DM["⛏️ Minería de Datos"]
+        DM_core["Descubrimiento y extracción<br>de patrones"]
+  end
+ subgraph ROW1[" "]
+        BD
+        CD
+        DM
+  end
+ subgraph ML_GROUP["🧠 Machine Learning"]
+        DL["🔗 Deep Learning"]
+  end
+ subgraph IA_GROUP["🤖 Inteligencia Artificial"]
+        ML_GROUP
+  end
+ subgraph ROW2[" "]
+        IA_GROUP
+  end
+ subgraph BI["📈Inteligencia de Negocios"]
+        BI_core["Toma de decisiones"]
+  end
+    EST -- proporciona rigor matemático a --> CD
+    EST -- valida metodológicamente --> DM
+    EST -- sustenta algoritmos de --> ML_GROUP
+    BD -- suministra datasets masivos para --> CD
+    BD -- alimenta procesos de --> DM
+    BD -- entrena modelos de --> ML_GROUP
+    BD -- habilita entrenamientos profundos en --> DL
+    CD -- implementa algoritmos de --> ML_GROUP
+    CD -- ejecuta técnicas de --> DM
+    DM -- descubre patrones para --> ML_GROUP
+    CD -- genera insights para --> BI
+    ML_GROUP -- construye modelos predictivos para --> BI
+    DM -- revela tendencias ocultas para --> BI
+    IA_GROUP -- automatiza decisiones en --> BI
+     DL:::dl
+     EST:::est
+     CD:::cd
+     DM:::dm
+     ML_GROUP:::ml
+     BD:::bd
+     BI:::bi
+     IA_GROUP:::ia
+    classDef ia fill:#e1f5fe,stroke:#01579b,stroke-width:3px,color:#000
+    classDef ml fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    classDef dl fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    classDef bd fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef cd fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px,color:#000
+    classDef dm fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    classDef bi fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px,color:#000
+    classDef est fill:#fffde7,stroke:#f57f17,stroke-width:3px,color:#000
+    classDef invisible fill:none,stroke:none
