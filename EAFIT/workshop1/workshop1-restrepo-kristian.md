@@ -64,7 +64,7 @@ Lista numerada con cada término en negritas, seguido de su descripción breve.
 
 ---
 
-## 2. Definiciones
+## 2. Diagrama de relación entre conceptos con Mermaid.js
 ### 2.1. Prompt usado
 **Contexto:** Eres un arquitecto de información y experto en ciencia de datos con 15 años de experiencia. Debes crear un diagrama de relaciones conceptuales para una audiencia con conocimientos básicos en tecnología, que incluya los 8 conceptos clave del área.
 
@@ -121,3 +121,25 @@ Código del diagrama con Mermaid.js
 - Fue un proceso largo, ya que tuve que lidiar con DeepSeek, que no interpretaba correctamente la sintaxis. Sin embargo, considero que el resultado final fue excelente.
 - Nuevamente, destaco la importancia de combinar distintos LLMs para obtener resultados más precisos.
 
+## 3. Video reciente con aplicación interesante de IA.
+### 3.1. Prompt usado
+**Contexto:** Eres un estudiante al que se le ha encargado buscar un video sobre una aplicación de inteligencia artificial que sea interesante. Encuentras un blog de NVIDIA que presenta una aplicación de IA multimodal para buscar dentro de un video y generar resúmenes automáticos (https://developer.nvidia.com/blog/build-a-video-search-and-summarization-agent-with-nvidia-ai-blueprint/?utm_source=chatgpt.com
+).
+
+**Objetivo:** Escribir una síntesis breve y clara sobre el contenido del video, destacando su funcionamiento, utilidad y relevancia.
+
+**Instrucciones específicas:**
+- Utiliza español.
+- Explica en qué consiste la aplicación.
+- Señala qué problema soluciona o qué necesidad cubre.
+
+**Formato de salida:**
+Un párrafo en español, escrito en estilo académico, que resuma lo más relevante del blog y el video de forma clara y completa.
+
+### 3.2. Respuesta ChatGPT (RESUMEN)
+El video de NVIDIA presenta una aplicación de **inteligencia artificial multimodal** que combina visión por computador y modelos de lenguaje para realizar búsquedas dentro de un video y generar resúmenes automáticos. El sistema extrae fotogramas clave y transcripciones, los procesa mediante un **modelo de lenguaje grande (LLM)** y responde a consultas en lenguaje natural, localizando y resumiendo segmentos relevantes. Esto resulta valioso porque **soluciona el problema del tiempo y esfuerzo que implica revisar manualmente contenido audiovisual extenso**, facilitando el acceso rápido a la información esencial.  
+
+
+### 3.3. Notas personales
+- Dado que el trabajo se ha basado en el uso de LLMs, busqué escribir un resumen con mis palabras y luego compararlo con el de ChatGPT, determinando que realmente si menciona todos los temas mas relevantes a tratar sobre el mismo, el cual no es muy largo.
+- Complementé lo del LLM con mis notas sobre el PDF final.
