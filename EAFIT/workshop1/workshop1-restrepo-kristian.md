@@ -226,3 +226,31 @@ ChatGPT-5 propuso una solución compacta usando comprensión con `sum(u*v for u,
 - El apoyo de **ChatGPT-5** permitió obtener soluciones rápidas, correctas y bien explicadas.  
 - El único caso donde necesité iterar fue en el ejercicio 2 (Semejanza de textos), lo cual me ayudó a comprender mejor el problema y a aprender de la corrección.  
 - En todos los casos finales, logré **100% de éxito en UNCode**, con evidencia capturada en imágenes.  
+
+## 6. Uso de LLM para actividad de algún curso pasado. 
+
+### 6.1. Prompt usado
+Hola, para un curso tengo que hacer una tarea a partir de una visión consolidada de un usuario.  
+La idea es que de esa visión generes primero un **escenario narrativo** en el que se muestre cómo esa persona usa la aplicación frente a una interrupción, y después que construyas un **storyboard tipo cómic** con varias viñetas.  
+Por favor:  
+- Hazlo en español.  
+- El escenario debe estar escrito en prosa clara y coherente.  
+- El storyboard debe dividirse en viñetas, cada una con contexto, acción, emoción y resultado.  
+- Las imágenes deben parecer de un cómic sencillo, no realistas.  
+
+---
+
+### 6.2. Respuesta ChatGPT (RESUMEN)
+Primero retornó el texto con el **escenario narrativo**:
+
+> *Anasol está estudiando para una entrega importante… recibe una llamada… interrumpe su sesión… el asistente de estudio reorganiza automáticamente el tiempo en tareas más cortas… al final recibe un refuerzo positivo que la motiva a seguir.*  
+
+Luego proporcionó el **storyboard asociado** al mismo, estructurado en viñetas. Tras algunas iteraciones para corregir errores en los textos e imágenes, se obtuvo un resultado visual de alta calidad como el que se muestra a continuación:
+
+![alt text](_assets/image-6.png)
+
+---
+
+### 6.3. Notas personales
+- Tuve que realizar varias iteraciones para que el storyboard saliera completo, sin errores en los textos dentro de las viñetas.   
+- La combinación de **visión consolidada + LLM** fue clave para obtener un escenario consistente y un storyboard claro.  
