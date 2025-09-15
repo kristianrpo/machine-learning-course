@@ -156,7 +156,7 @@ Los transformers son una arquitectura de red neuronal revolucionaria introducida
 ## 5. Resolución de problemas de programación con LLM
 
 ### 5.1. Ejercicio 1: Votación
-#### Prompt usado
+#### 5.1.1. Prompt usado
 **Contexto:** Soy estudiante y debo resolver un problema de programación en Python. El enunciado consiste en leer una lista de votos, contabilizarlos y determinar el ganador. Si existe empate, debe imprimirse la palabra `EMPATE`.  (Adjunté imagen de todo el ejercicio de la plataforma)
 
 **Objetivo:** Generar un programa en Python 3.9 que use estructuras simples (diccionarios y condicionales) y que funcione en UNCode según lo que observas en la imagen.
@@ -167,10 +167,10 @@ Los transformers son una arquitectura de red neuronal revolucionaria introducida
 - Detectar empates correctamente.
 - Toma como referencia el ejemplo evidenciado en la imagen sobre entrada y salida.
 
-#### Respuesta ChatGPT
+#### 5.1.2. Respuesta ChatGPT
 ChatGPT-5 me propuso un código basado en un diccionario para almacenar los votos, calcular el máximo de votos y decidir si imprimir un nombre o la palabra `EMPATE`. El código era claro y funcionó a la primera sin necesidad de modificaciones.
 
-#### Notas personales
+#### 5.1.3. Notas personales
 - Este fue el ejercicio más directo, la solución era inmediata y obtuve **100% de aciertos** desde el primer intento.  
 - Aprendí que el uso de `dict.get(clave, 0)` simplifica mucho la acumulación de votos. Habitualmente conocía otras formas de acceder a esto en diccionarios.
 - El amplio contexto de la plataforma permite al LLM generar resultados precisos.
@@ -178,7 +178,7 @@ ChatGPT-5 me propuso un código basado en un diccionario para almacenar los voto
 ---
 
 ### 5.2. Ejercicio 2: Semejanza de textos
-#### Prompt usado
+#### 5.2.1. Prompt usado
 **Contexto:** El ejercicio pide leer dos frases y calcular: (1) cuántas palabras tienen en común, y (2) cuántas palabras únicas existen entre ambas.
 
 **Objetivo:** Escribir un programa corto en Python que procese los textos como conjuntos y calcule las métricas, teniendo como referencia lo definido también en la imagen.
@@ -188,13 +188,13 @@ ChatGPT-5 me propuso un código basado en un diccionario para almacenar los voto
 - Imprimir dos líneas: primero compartidas, luego únicas.
 - Toma como referencia el ejemplo evidenciado en la imagen sobre entrada y salida.
 
-#### Respuesta ChatGPT
+#### 5.2.2. Respuesta ChatGPT
 ChatGPT-5 me propuso primero una solución usando intersección y unión. Esto me dio resultados incorrectos porque la consigna pedía palabras **únicas** (diferencia simétrica) y no todo el vocabulario total. Tras mostrarle el error y revisar con él, me sugirió la versión corregida con `A ^ B`.
 
-#### Iteración
+#### 5.2.3. Iteración
 Sí, este fue el único ejercicio en el que necesité **iterar**. Con la primera respuesta tuve un puntaje bajo, pero luego de la corrección obtuve el **100%**.  
 
-#### Notas personales
+#### 5.2.4. Notas personales
 - Fue útil descubrir en sintáxis como hacer una diferencia simétrica (`^`).
 - Este error me sirvió para reforzar mi comprensión de teoría de conjuntos aplicada en Python.  
 - No necesariamente debo estar totalmente alineado con la sintáxis del lenguaje, pues con conocimientos desde la lógica y el LLM se puede llegar a los resultados que se quieran.
@@ -202,7 +202,7 @@ Sí, este fue el único ejercicio en el que necesité **iterar**. Con la primera
 ---
 
 ### 5.3. Ejercicio 3: Producto punto
-#### Prompt usado
+#### 5.3.1. Prompt usado
 **Contexto:** El ejercicio consistía en calcular el producto punto entre dos vectores de la misma dimensión.
 
 **Objetivo:** Escribir un programa en Python 3.9 que lea dos listas de enteros y calcule su producto escalar.
@@ -211,10 +211,10 @@ Sí, este fue el único ejercicio en el que necesité **iterar**. Con la primera
 - Utilizar lectura con `input()` y conversión con `map(int, ...)`.
 - Implementar el cálculo en pocas líneas, preferiblemente con `zip`.
 
-#### Respuesta ChatGPT
+#### 5.3.2. Respuesta ChatGPT
 ChatGPT-5 propuso una solución compacta usando comprensión con `sum(u*v for u,v in zip(...))`. El código fue correcto desde el inicio y pasó todos los casos.
 
-#### Notas personales
+#### 5.3.3. Notas personales
 - Este ejercicio también fue trivial y obtuve **100% en el primer intento**.  
 - No necesariamente debo estar totalmente alineado con la sintáxis del lenguaje, pues con conocimientos desde la lógica y el LLM se puede llegar a los resultados que se quieran.
 
@@ -254,3 +254,30 @@ Luego proporcionó el **storyboard asociado** al mismo, estructurado en viñetas
 ### 6.3. Notas personales
 - Tuve que realizar varias iteraciones para que el storyboard saliera completo, sin errores en los textos dentro de las viñetas.   
 - La combinación de **visión consolidada + LLM** fue clave para obtener un escenario consistente y un storyboard claro.  
+
+## 7. Argumentos a favor y en contra de la IAG.
+### 7.1. Prompt usado
+**Contexto:**  
+Eres un estudiante universitario que debe analizar la posibilidad de una Inteligencia Artificial General (IAG) desde diferentes perspectivas.  
+
+**Objetivo:**  
+Obtener argumentos sólidos, bien redactados y organizados, tanto a favor como en contra de la viabilidad de alcanzar una IAG.  
+
+**Instrucciones específicas:**  
+- Presentar al menos 3 o 4 argumentos a favor y en contra.  
+- Explicarlos con un lenguaje académico pero entendible.  
+- Diferenciar claramente los apartados a favor y en contra.  
+- Entregar el resultado en un formato ordenado (listas numeradas).  
+
+**Formato de salida:**  
+Texto estructurado con secciones y listas enumeradas (adecuado para pasar a LaTeX).  
+
+
+### 7.2. Respuesta ChatGPT y DeepSeek (RESUMEN)  
+- **ChatGPT** destacó los avances tecnológicos, la generalización de modelos actuales (como los LLMs), la inversión global y el progreso en neurociencia como factores que hacen posible la IAG. También señaló los desafíos: problemas éticos, altos costos energéticos y la dificultad de replicar la cognición humana.  
+- **DeepSeek** cursiosamente abordó los temas muy similar a ChatGPT, lo que me permitió combinar posteriormente ambas posturas.
+
+
+### 7.3. Notas personales
+- Primero ChatGPT me dio una respuesta clara y organizada, pero algo más enfocada en lo conceptual y ético.  
+- Luego pedí a DeepSeek, y su visión fue más técnica, con matices sobre algoritmos y energía, pero me permitió combinar correctamente ambas perspectivas sobre la solución final en el PDF.
