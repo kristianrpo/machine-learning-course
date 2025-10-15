@@ -407,12 +407,15 @@ Esta sección implementa manualmente el algoritmo de descenso del gradiente para
    - Todos los parámetros tienen error <5.0%, lo que demuestra la efectividad del método y su éxito para encontrar los mismos.
 
 5. **Validación del Learning Rate:**
+   ![alt text](../_assets/image-07.png)
    - **α = 0.1 es óptimo** para este problema, dado que como vimos en clase la importancia de considerar el valor óptimo del mismo, podemos concluir que:
-     - Si α < 0.01: Convergencia muy lenta (>1000 iteraciones)
+     - Si α < 0.01: Convergencia muy lenta (Muchas más iteraciones)
      - Si α > 0.5: Posible divergencia u oscilación alrededor del mínimo
    - La convergencia suave en <100 iteraciones confirma la elección correcta de α para este caso particular.
+   - De hecho, este hiper parámetro del paso, podemos encontrar uno que nos de resultados más rápido, como para el ejemplo de "0.1".
 
    `` No es necesario hacer tantas iteraciones, pues ya sabemos a partir de que punto alcanzamos convergencia. ``
 
 ---
+
 
