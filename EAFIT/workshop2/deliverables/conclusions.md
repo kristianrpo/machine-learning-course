@@ -143,7 +143,7 @@ Este experimento demuestra cómo los valores atípicos (outliers) afectan dramá
 
     **El problema:** Un outlier con error ε = 25 contribuye ε² = **625** al costo, mientras que 25 puntos normales con ε = 1 solo contribuyen 25. El modelo "sacrifica" el ajuste general para minimizar este único error grande.
 
-    ``POR ELLO LA IMPORTANCIA DE TRATAR LOS OUTLIERS``
+   `` Por ello, se destaca la importancia de los outliers  ``
 
 2. **Análisis visual de los escenarios:**
 
@@ -409,5 +409,7 @@ Esta sección implementa manualmente el algoritmo de descenso del gradiente para
      - Si α > 0.5: Posible divergencia u oscilación alrededor del mínimo
    - La convergencia suave en <100 iteraciones confirma la elección correcta de α para este caso particular.
 
+   `` No es necesario hacer tantas iteraciones, pues ya sabemos a partir de que punto alcanzamos convergencia. ``
+   
 ---
 
