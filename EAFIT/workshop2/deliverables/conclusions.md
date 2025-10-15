@@ -389,12 +389,12 @@ Esta sección implementa manualmente el algoritmo de descenso del gradiente para
 1. **Fase Inicial (0-20 iteraciones):**
    - El gráfico muestra una **curva exponencial decreciente pronunciada**, es decir, una caida importante del costo.
    - Los parámetros se actualizan con **gradientes grandes** porque están lejos del óptimo
-   - **Interpretación:** El algoritmo detecta rápidamente la dirección correcta hacia el mínimo
+   - El algoritmo detecta rápidamente la dirección correcta hacia el mínimo
 
 2. **Fase de Convergencia Rápida (20-100 iteraciones):**
-   - **Convergencia asintótica:** El costo pasa de 0.50 a 0.0946 (-81%)
+   - El costo pasa de 0.50 a 0.0946 (-81%)
    - La curva se aplana gradualmente, indicando que los parámetros se acercan al óptimo
-   - **Gradientes cada vez más pequeños:** Los pasos de actualización disminuyen automáticamente
+   - Los pasos de actualización disminuyen automáticamente dado que nos estamos acercando al mínimo
    - En el zoom de las primeras 100 iteraciones (gráfico derecho), la curva naranja es casi plana después de la iteración 30
 
 3. **Fase de Estabilización (>100 iteraciones):**
@@ -403,13 +403,16 @@ Esta sección implementa manualmente el algoritmo de descenso del gradiente para
    - **Convergencia numérica:** Los gradientes son ~0, actualizaciones <10⁻⁶
    - **Conclusión:** El modelo ha convergido, iteraciones adicionales son innecesarias
 
-4. **Validación del Learning Rate:**
+4. **Precisión de los Parámetros:**
+   - Todos los parámetros tienen error <5.0%, lo que demuestra la efectividad del método y su éxito para encontrar los mismos.
+
+5. **Validación del Learning Rate:**
    - **α = 0.1 es óptimo** para este problema, dado que como vimos en clase la importancia de considerar el valor óptimo del mismo, podemos concluir que:
      - Si α < 0.01: Convergencia muy lenta (>1000 iteraciones)
      - Si α > 0.5: Posible divergencia u oscilación alrededor del mínimo
    - La convergencia suave en <100 iteraciones confirma la elección correcta de α para este caso particular.
 
    `` No es necesario hacer tantas iteraciones, pues ya sabemos a partir de que punto alcanzamos convergencia. ``
-   
+
 ---
 
