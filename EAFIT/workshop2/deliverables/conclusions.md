@@ -60,7 +60,7 @@ Este punto implementa manualmente el algoritmo de regresión lineal simple utili
 
 
 4. **Análisis de residuos:**
-   ![Diagram01](_assets/image.png)
+   ![Diagram01](../_assets/image.png)
 
    **Gráfico izquierdo (Ajuste):**
    - Las líneas discontinuas verticales representan los **residuos individuales** (εᵢ = yᵢ - ŷᵢ).
@@ -135,7 +135,7 @@ Este experimento demuestra cómo los valores atípicos (outliers) afectan dramá
 
 **Interpretación Detallada:**
 
-![Impacto de Outliers](_assets/image-01.png)
+![Impacto de Outliers](../_assets/image-01.png)
 
 1. **Mecanismo de sensibilidad de OLS:**
 
@@ -162,3 +162,252 @@ Este experimento demuestra cómo los valores atípicos (outliers) afectan dramá
     - Degradación del 30% en R²
     - Los outliers distorsionan completamente el modelo
     - La pendiente aumenta significativamente
+
+
+---
+
+## 3. Regresión Lineal Múltiple
+
+### 3.1 Regresión Múltiple - Dataset California Housing
+
+**Descripción:**
+
+Este punto introduce la **regresión lineal múltiple**, donde el modelo aprende a predecir una variable objetivo usando múltiples características simultáneamente. Se utiliza el dataset real de California Housing, que contiene información sobre precios de viviendas y características demográficas/geográficas de diferentes distritos (el que veniamos evaluando dentro de la clase).
+
+**Características del Dataset:**
+- **20,640 muestras** (distritos censales de California)
+- **8 variables predictoras:** MedInc, HouseAge, AveRooms, AveBedrms, Population, AveOccup, Latitude, Longitude
+- **Variable objetivo:** Precio medio de casas (en cientos de miles de dólares)
+
+**Distribución de Variables:**
+
+![Distribución California Housing](../_assets/image-02.png)
+
+**Observaciones de las distribuciones y analisis descriptivo:**
+
+1. **MedInc (Ingreso Medio):** La distribución de MedInc muestra un sesgo positivo (derecha), con la mayoría de los valores concentrados entre 1 y 5, y una cola hacia la derecha. Esto indica que la mayoría de las observaciones están en el rango inferior de ingresos, mientras que los valores más altos son relativamente raros.
+
+2. **HouseAge (Edad de la Casa):** La variable HouseAge muestra una distribución multimodal con picos alrededor de los valores 15 y 35-40, lo que sugiere que existen ciertos rangos de edad de casas más comunes en el dataset. Además, hay una fuerte presencia de casas con edades cercanas a 50 años, lo que podría ser un límite o techo de la variable. La desviación estándar de 12.59 indica una variabilidad moderada en las edades de las casas. La mínima es 1, lo que podría reflejar construcciones recientes, y la máxima es 52, lo que sugiere una variedad de casas de diferentes épocas.
+
+3. **AveRooms (Promedio de Habitaciones):** AveRooms (Promedio de Cuartos por Hogar): La distribución de AveRooms presenta una sesgo positivo (derecha) con una gran concentración de valores bajos (por debajo de 20) y una larga cola que se extiende hasta valores mucho más altos. Esto indica que, aunque la mayoría de los hogares tienen pocos cuartos, existen algunos hogares (a lo mejor outliers) con un número mucho mayor, lo que sugiere una gran variabilidad en el tamaño de las viviendas.
+
+4. **AveBedrms (Promedio de Dormitorios):** Al igual que AveRooms, AveBedrms tiene un sesgo positivo (derecha) con una distribución muy concentrada en valores bajos y una cola larga hacia valores más altos. Esto puede reflejar una estructura similar en los hogares, donde la mayoría tiene pocos dormitorios, pero con algunos hogares con más de 30 dormitorios, lo cual es un caso atípico.
+
+5. **Population (Población):** La distribución de Population está claramente sesgada positivamente (derecha), con la mayoría de las observaciones concentradas en poblaciones pequeñas (<5,000) y una cola larga hacia poblaciones más grandes (>30,000). Esto sugiere que la mayoría de las áreas en el dataset son pequeñas, pero algunas tienen una población considerablemente mayor.
+
+6. **AveOccup (Ocupación Promedio):** AveOccup muestra un sesgo muy fuerte hacia la derecha, con una concentración extrema de valores en torno a valores bajos (<200). Hay unos pocos registros con valores mucho mayores, indicando que en ciertos hogares la ocupación es mucho mayor, pero son outliers en la distribución.
+
+7. **Latitude/Longitude:** La distribución de Latitude muestra una forma multimodal con picos en los valores cercanos a 34° y 37-38°. Esto refleja la concentración de los datos en ciertas áreas geográficas de California, como Los Ángeles (34°) y la Bahía de San Francisco (37°). La desviación estándar de latitud baja (2.14) indica poca variabilidad, lo que sugiere que los datos se concentran principalmente en el centro de California. La desviación estándar de longitud (2.00) es baja, lo que refleja que la mayoría de los distritos se encuentran en zonas cercanas.
+
+8. **Price (Target):** Similar a Latitude, Longitude tiene una distribución multimodal, con picos en las longitudes cercanas a -118° (Los Ángeles) y -122° (San Francisco). Esto también refleja una concentración geográfica en ciertas áreas de California, principalmente en las zonas urbanas.
+
+
+### 3.2 Análisis de Correlación
+
+**Descripción:**
+
+Este análisis examina las relaciones lineales entre todas las variables del dataset mediante la matriz de correlación de Pearson. El objetivo es identificar qué características tienen mayor relación con el precio de las casas y detectar posibles problemas de multicolinealidad entre predictores.
+
+**Resultados Observados:**
+
+![Matriz de Correlación](../_assets/image-03.png)
+
+**Correlaciones con el Precio (ordenadas por magnitud):**
+
+**Conclusiones Principales:**
+
+1. **Predictor dominante:** **MedInc** (r=0.688) es el único predictor con correlación fuerte. Un ingreso medio alto se asocia fuertemente con precios altos, explicando ~47% de la varianza (r²=0.473) por sí solo.
+
+2. **Predictores secundarios:** **AveRooms** (r=0.152) y **HouseAge** (r=0.106) tienen correlaciones débiles pero positivas. Más habitaciones y casas ligeramente más nuevas se asocian con precios mayores.
+
+3. **Multicolinealidad detectada:** **Latitude ↔ Longitude** (r=-0.92) están altamente correlacionadas (capturan geografía conjuntamente). **AveRooms ↔ AveBedrms** (r=0.85) también muestran colinealidad esperada. Esto puede inflar la varianza de los coeficientes estimados.
+
+4. **Variables poco informativas:** **AveOccup** (r=-0.024) y **Population** (r=-0.025) tienen correlaciones prácticamente nulas con el precio. Su utilidad individual es cuestionable, aunque pueden aportar en interacciones.
+
+5. **Efecto geográfico no lineal:** Las correlaciones débiles de **Latitude/Longitude** con precio (-0.144/-0.046) no capturan la realidad de que la ubicación es crucial. Esto confirma que la relación geográfica es **no lineal** (zonas costeras caras vs interiores baratas, independiente de coordenadas absolutas).
+
+---
+
+### 3.3 Entrenamiento y Evaluación del Modelo Múltiple
+
+**Descripción:**
+
+Este punto implementa el entrenamiento completo de un modelo de regresión lineal múltiple con 8 variables predictoras. Se utiliza la división estándar 80/20 para entrenamiento/prueba, con estandarización previa de las características mediante `StandardScaler`. El modelo se evalúa en ambos conjuntos para detectar posibles problemas de overfitting o underfitting.
+
+**Metodología:**
+- **División de datos:** 80% entrenamiento, 20% prueba 
+- **Preprocesamiento:** Estandarización z-score (media=0, std=1) para cada feature
+- **Modelo:** Regresión Lineal OLS (Ordinary Least Squares) sin regularización
+- **Random seed:** 42 para reproducibilidad
+
+**Resultados Obtenidos:**
+
+![Evaluación del Modelo](../_assets/image-04.png)
+
+**Métricas Comparativas:**
+
+| Métrica      | Entrenamiento | Prueba  | Diferencia | Interpretación           |
+|--------------|---------------|---------|------------|--------------------------|
+| **R²**       | 0.6126        | 0.5758  | -0.0368    | Leve degradación         |
+| **RMSE**     | 0.7197        | 0.7456  | +0.0259    | Aumento del error (3.6%) |
+| **MAE**      | 0.5286        | 0.5332  | +0.0046    | Muy similar              |
+| **MSE**      | 0.5179        | 0.5559  | +0.0380    | Aumento moderado         |
+
+**Interpretación Detallada:**
+
+1. **Capacidad Explicativa (R²):**
+
+   **R² Train = 0.6126 (61.26%):**
+   - El modelo explica el 61.26% de la variabilidad en los precios del conjunto de entrenamiento
+   - Este valor es **moderado**, no excelente. Significa que ~39% de la varianza no es capturada
+   - Comparado con el R²=0.94 de regresión simple sintética, aquí enfrentamos **datos reales más complejos**
+   
+   **R² Test = 0.5758 (57.58%):**
+   - En datos no vistos, el modelo explica el 57.58% de la varianza
+   - **Degradación de 3.68 puntos porcentuales** respecto al entrenamiento
+   - Esta caída es **razonable y esperada** en ML (indica que el modelo no está memorizado)
+
+   El modelo tiene capacidad predictiva real, aunque limitada. La varianza no explicada (42%) sugiere que factores no capturadosinfluyen significativamente en el precio.
+
+2. **Error Absoluto Promedio (MAE):**
+
+   **MAE Train = 0.5286 (±$52,860):**
+   - En promedio, las predicciones en entrenamiento se desvían ±$52,860 del precio real
+   - Para precios con media $206,000, esto representa un **error del 25.6%**
+   - **Contexto:** Una casa de $200,000 podría predecirse entre $147,140 y $252,860
+   
+   **MAE Test = 0.5332 (±$53,320):**
+   - El error promedio en prueba es **casi idéntico** (+$460, solo 0.87% de aumento)
+   - **Estabilidad excelente:** El modelo generaliza bien, no está sobreajustado
+   - Error consistente entre train/test valida la robustez del modelo
+
+   MAE es más interpretable que MSE. Un error de ~$53k en predicciones de casas de $200k es un factor relevante a considerar, demostrando la busqueda de la mejora de la base que se tiene del modelo.
+
+3. **Error Cuadrático Medio (RMSE):**
+
+   **RMSE Train = 0.7197 (±$71,970):**
+   - Raíz del error cuadrático promedio es $71,970
+   - **RMSE > MAE** (0.7197 vs 0.5286) por **36%** → indica presencia de **errores grandes ocasionales**
+   - El RMSE penaliza más los outliers (errores de $200k impactan 4× más que errores de $100k)
+   
+   **RMSE Test = 0.7456 (±$74,560):**
+   - Aumento de $2,590 respecto al entrenamiento (solo 3.6%)
+   - **Diferencia mínima** confirma que el modelo no sufre overfitting significativo
+   - RMSE Test < 1.0 se considera **bueno** para este dataset
+   
+
+4. **Análisis Visual de las Predicciones:**
+- El modelo muestra un **ajuste moderado** en ambos conjuntos, con un **desempeño ligeramente mejor en el entrenamiento**. La dispersión en las predicciones muestra que el modelo podría beneficiarse de mejoras en la capacidad de generalización o de técnicas de regularización para mejorar su ajuste y precisión.
+
+
+5. **Diagnóstico de Overfitting/Underfitting:**
+
+   **Indicadores evaluados:**
+   
+   | Indicador                  | Valor Observado | Diagnóstico                    |
+   |----------------------------|-----------------|--------------------------------|
+   | R² Train - R² Test         | 0.0368 (3.68%)  | **Generalización saludable** |
+   | RMSE Test / RMSE Train     | 1.036           | **No overfitting** (<1.1)   |
+   | MAE Test ≈ MAE Train       | Δ = 0.0046      | **Estabilidad excelente**   |
+   | R² absoluto                | 0.5758 (test)   | **Underfitting moderado**   |
+   | Varianza explicada         | 57.58%          | **Capacidad limitada**      |
+   
+   **Conclusión del diagnóstico:**
+   - Las métricas train/test son muy similares para que exista overfitting
+   - R²=0.58 sugiere que el modelo es **demasiado simple** para la complejidad del problema
+   - El modelo lineal básico **no captura todas las relaciones** en los datos
+
+---
+
+### 3.4 Importancia de Características
+
+**Descripción:**
+
+Este análisis examina los coeficientes estandarizados del modelo para determinar qué variables tienen mayor impacto en las predicciones de precio. Los coeficientes representan el cambio en el precio (en desviaciones estándar) cuando cada feature aumenta en 1 desviación estándar, manteniendo las demás constantes.
+
+**Resultados Obtenidos:**
+
+![Importancia de Características](../_assets/image-05.png)
+
+**Conclusiones Principales:**
+
+1. **Latitude** y **Longitude** son los predictores más importantes (|coef| ≈ 0.87-0.90). Sus coeficientes negativos indican que moverse hacia el norte (mayor latitud) o hacia el este (mayor longitud, menos negativa) **reduce** el precio. Esto captura el efecto de la ubicación costera del sur de California (LA, San Diego) donde los precios son más altos.
+
+2. **MedInc** (Ingreso medio) (coef=+0.854) es el tercer predictor más importante y el **único económico relevante**. Un aumento de 1 std en ingreso medio (~$19k) aumenta el precio en 0.854 std (~$98k), consistente con la correlación r=0.688 observada previamente.
+
+3. **AveBedrms** (coef=+0.339) tiene impacto moderado positivo, mientras que **AveRooms** (coef=-0.294) es negativo. Estos que están inversos podrían demostrar el problema de multicolinealidad desde mi perspectiva, pero se destaca su importancia.
+
+4. **Population** (coef=-0.002) y **AveOccup** (coef=-0.041) son prácticamente **inútiles** para el modelo. Esto podría determinarse como un valor relevante para la eliminación de las features en feature engineering.
+
+5. **Edad de casas poco importante:** **HouseAge** (coef=+0.123) tiene efecto positivo débil, sugiriendo que casas ligeramente más viejas son marginalmente más caras (posiblemente por ubicaciones establecidas), pero el impacto es mínimo.
+
+
+---
+
+## 4. Gradiente Descendiente
+## 4. Gradient Descent desde Cero
+Podemos obeservar al graficar nuestra función de coste que tenemos un minimo global para nuestra función convexa en [-0.005 -0.005]
+
+### 4.1 Implementación y Convergencia
+
+**Descripción:**
+
+Esta sección implementa manualmente el algoritmo de descenso del gradiente para resolver regresión lineal mediante optimización iterativa. A diferencia de la ecuación normal (en la que toca invertir matriz y es costoso computaiconalmente), el gradiente descendiente encuentra los parámetros óptimos minimizando iterativamente la función de costo MSE mediante actualizaciones basadas en el gradiente: **θ_new = θ_old - α∇J(θ)**.
+
+**Metodología:**
+- **Inicialización:** θ = [0, 0, 0, 0] (intercepto + 3 coeficientes)
+- **Learning rate (α):** 0.1
+- **Iteraciones:** 500
+- **Función de costo:** J(θ) = (1/2m)Σ(ŷ - y)²
+- **Dataset sintético:** 100 muestras, 3 features, parámetros verdaderos = [2, -1, 0.5, 3]
+
+**Resultados Obtenidos:**
+
+![Convergencia de Gradient Descent](../_assets/image-06.png)
+
+**Evolución del Costo:**
+
+| Iteración | Costo J(θ) | Cambio vs Anterior | Estado               |
+|-----------|------------|--------------------|----------------------|
+| 0         | 6.3952     | -                  | Inicial (θ = 0)      |
+| 100       | 0.0946     | -6.3006 (-98.5%)   | Convergencia rápida (practicamente alcanzada)  |
+| 200       | 0.0946     | ~0.0000            | Convergencia alcanzada|
+| 300       | 0.0946     | 0.0000             | Estabilizado         |
+| 400       | 0.0946     | 0.0000             | Estabilizado         |
+
+**Parámetros Recuperados:**
+
+| Parámetro    | Valor Verdadero | Valor Encontrado | Error Absoluto | Error Relativo |
+|--------------|-----------------|------------------|----------------|----------------|
+| **θ₀** (Intercepto) | 2.00   | 2.056            | 0.056          | 2.8%           |
+| **θ₁**       | -1.00           | -1.039           | 0.039          | 3.9%           |
+| **θ₂**       | 0.50            | 0.475            | 0.025          | 5.0%           |
+| **θ₃**       | 3.00            | 2.946            | 0.054          | 1.8%           |
+
+**Análisis de Convergencia:**
+
+1. **Fase Inicial (0-20 iteraciones):**
+   - El gráfico muestra una **curva exponencial decreciente pronunciada**, es decir, una caida importante del costo.
+   - Los parámetros se actualizan con **gradientes grandes** porque están lejos del óptimo
+   - **Interpretación:** El algoritmo detecta rápidamente la dirección correcta hacia el mínimo
+
+2. **Fase de Convergencia Rápida (20-100 iteraciones):**
+   - **Convergencia asintótica:** El costo pasa de 0.50 a 0.0946 (-81%)
+   - La curva se aplana gradualmente, indicando que los parámetros se acercan al óptimo
+   - **Gradientes cada vez más pequeños:** Los pasos de actualización disminuyen automáticamente
+   - En el zoom de las primeras 100 iteraciones (gráfico derecho), la curva naranja es casi plana después de la iteración 30
+
+3. **Fase de Estabilización (>100 iteraciones):**
+   - **Costo constante:** J(θ) = 0.0946 sin cambios significativos (decimales estables)
+   - El algoritmo alcanza el **mínimo global** de la función convexa
+   - **Convergencia numérica:** Los gradientes son ~0, actualizaciones <10⁻⁶
+   - **Conclusión:** El modelo ha convergido, iteraciones adicionales son innecesarias
+
+4. **Validación del Learning Rate:**
+   - **α = 0.1 es óptimo** para este problema, dado que como vimos en clase la importancia de considerar el valor óptimo del mismo, podemos concluir que:
+     - Si α < 0.01: Convergencia muy lenta (>1000 iteraciones)
+     - Si α > 0.5: Posible divergencia u oscilación alrededor del mínimo
+   - La convergencia suave en <100 iteraciones confirma la elección correcta de α para este caso particular.
+
+---
+
