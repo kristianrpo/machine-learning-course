@@ -550,21 +550,14 @@ El **support** (107 vs 64) muestra leve desbalance hacia malignos en el test set
 
 **Análisis Crítico:**
 
-Este desempeño excepcional (accuracy 98.8%, AUC 0.998) plantea la pregunta: **¿es realista o hay sobreajuste?** Tres evidencias validan que es legítimo:
+Este desempeño excepcional (accuracy 98.8%, AUC 0.998) plantea la pregunta: **¿es realista o hay sobreajuste? (válida pregunta según lo que hemos visto en clase de predicciones tan altas)** Tres evidencias validan que es legítimo:
 
 1. **Dataset de calidad:** Las 30 features del Breast Cancer Wisconsin son mediciones expertas de núcleos celulares (radio, textura, suavidad, compacidad, concavidad, simetría, dimensión fractal) altamente correlacionadas con malignidad según literatura médica.
 
 2. **Separabilidad inherente:** Los tumores malignos tienen características morfológicas distintivas (núcleos más grandes, irregulares, textura heterogénea) que las técnicas de imagen capturan bien. El problema *es* inherentemente separable.
 
-3. **Test set independiente:** El 30% de los datos (171 muestras) se reservó para evaluación, y las métricas en test son comparables a train (no mostradas aquí, pero típicamente Train Accuracy ≈ 99%, Test ≈ 98.8%), indicando buena generalización.
+3. **Test set independiente:** El 30% de los datos (171 muestras) se reservó para evaluación, y las métricas en test son comparables a train (no mostradas aquí, pero típicamente Train Accuracy ≈ 99%, Test ≈ 98.8%), indicando buena generalización (asi, evitamos data leakage al separar bien los datos).
 
-**Limitaciones identificadas:**
-- **Dataset pequeño (569 muestras):** En producción real con miles de casos diversos (diferentes etnias, edades, equipos de imagen), el desempeño probablemente sería 95-97% accuracy, no 98.8%.
-- **Validación externa necesaria:** Estos resultados son *in-sample* (mismo hospital/equipo). Se requiere validación en datos de otros centros médicos para confirmar robustez.
-- **Features pre-procesadas:** El dataset ya viene con características expertamente ingenieradas. En un sistema de producción, el pipeline completo (imagen → extracción de features → predicción) tendría errores acumulados.
 
-**Conclusión:**
-
-El modelo de Regresión Logística alcanza desempeño de nivel clínico (AUC 0.998, F1 0.988) en el dataset de cáncer de mama, superando el umbral típico de utilidad médica (AUC > 0.9). La combinación de métricas (matriz de confusión, ROC, PR, distribución de probabilidades) confirma que no solo clasifica bien, sino que proporciona **probabilidades calibradas** útiles para decisiones médicas. El análisis de umbrales revela que el modelo es robusto: podemos ajustar el trade-off precision-recall según el contexto (screening poblacional vs diagnóstico individual) sin degradar significativamente el desempeño. Este caso demuestra que la Regresión Logística, a pesar de su simplicidad, puede competir con modelos más complejos cuando las features son informativas y el problema es razonablemente lineal en el espacio transformado.
 
 ---
