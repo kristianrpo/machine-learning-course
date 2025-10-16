@@ -606,3 +606,66 @@ Algo que me parecio curioso anotar: la **glucosa** tiene muy poca importancia (c
 
 ---
 
+### 9.2 Sistema Completo de Predicción de Precios Inmobiliarios
+
+**Descripción del Problema:**
+
+Este caso construye un **sistema de predicción de precios** usando el dataset de California Housing, el cual ya hemos mencionado durante todo el taller en varias ocaciones. A diferencia del caso anterior de diabetes (donde teníamos solo 442 muestras), aquí podemos despreocuparnos de la falta de datos.
+
+**Metodología:**
+
+Se implementa un **sistema de comparación exhaustiva** que entrena y evalúa **5 modelos diferentes** en paralelo:
+
+1. **Linear Regression (baseline):**
+2. **Ridge (L2):** 
+3. **Lasso (L1):** 
+4. **ElasticNet:** 
+5. **Polynomial (grado 2):**
+
+**Resultados Obtenidos:**
+
+![Comparación de Modelos](../_assets/image-13.png)
+
+**Interpretación por Gráfica:**
+
+**1. R² Score Comparison:**
+
+Esta gráfica, como bien sabemos hasta este punto, muestra qué tan bien cada modelo explica la varianza en los precios de viviendas. Tres observaciones me llamaron la atención:
+
+- **Linear, Ridge y Lasso son prácticamente iguales** con R²≈0.61 en ambos conjuntos (train y validation). Esto nos dice que la regularización aquí es casi innecesaria, pues no hay overfitting y las 8 features no son suficientes para saturar el modelo. La diferencia mínima entre train y validation (Gap≈0.003) confirma que estos modelos generalizan bien.
+
+- **ElasticNet tiene el peor desempeño** con R²_val=0.527, significativamente por debajo de los demás. Esto es curioso porque ElasticNet debería ser robusto al combinar L1+L2. La explicación está en los hiperparámetros: se usó `alpha=0.1` y `l1_ratio=0.5` fijos, sin optimización. Probablemente `alpha=0.1` es demasiado agresivo para este dataset, forzando demasiados coeficientes hacia cero y perdiendo señal predictiva útil. Si hubiéramos hecho GridSearch como en el caso de diabetes, ElasticNet posiblemente habría competido con los demás.
+
+- **Polynomial se dispara en train** (R²=0.685) pero **colapsa en validation** (R²=0.495). Aquí evidenciamos overfitting, donde al crear interacciones cuadráticas de 8 features originales, generamos ~36 nuevas features (8×8/2). Con 44 features totales, el modelo memoriza patrones en los datos de entrenamiento que no se replican en validation.
+
+**2. RMSE Comparison:**
+
+El RMSE nos dice el error promedio en **unidades reales** (cientos de miles de dólares). Aquí los hallazgos son coherentes con el R²:
+
+- **Linear, Ridge y Lasso empatan** en RMSE≈0.73 para validation. Esto significa que, en promedio, las predicciones se desvían ±$73,000 del precio real. Dado que el precio medio en California Housing ronda los $200,000, esto representa un error relativo de ~36%, que es aceptable para un modelo baseline pero mejorable.
+
+- **Polynomial tiene el peor RMSE de validation (0.85)**, pese a tener el mejor R² de train. Esto es otra prueba de overfitting: el modelo comete errores más grandes que los modelos simples en datos nuevos. Nota cómo el RMSE de train de Polynomial (0.64) es el mejor, confirmando que se ajusta demasiado bien a los datos de entrenamiento.
+
+- **ElasticNet (RMSE=0.80)** sigue siendo el segundo peor, validando que sus hiperparámetros no fueron bien ajustados.
+
+**3. Overfitting Analysis:**
+
+Este gráfico calcula `Train_R² - Val_R²` para cada modelo. Un valor alto indica que el modelo funciona mucho mejor en train que en validation, señal de overfitting, como bien hablabamos anteriormente. Algunos hallazgos se presentan a continuación:
+
+- **Linear, Ridge, Lasso y ElasticNet (barras verdes):** Gap <0.01, casi imperceptible. Esto significa que estos modelos son **confiables**, de hecho, se muestra que su desempeño en datos nuevos es prácticamente idéntico al de entrenamiento.
+
+- **Polynomial (barra roja gigante):** Gap=0.19, sobresaliendo. Esto confirma que el modelo polinomial está **memorizando** en lugar de aprender patrones generalizables.
+
+**4. Summary Table (inferior derecha):**
+
+La tabla resumen nos permite ver los números exactos y confirmar nuestras observaciones:
+
+- **Lasso emerge como el ganador** (celda verde): Val_R²=0.610, Val_RMSE=0.734. Aunque Ridge y Linear empatan en performance práctica, Lasso probablemente forzó algunos coeficientes irrelevantes a cero exacto (e.g., quizás `AveBedrms` resultó redundante con `AveRooms`), haciendo el modelo más interpretable.
+
+- **Linear y Ridge están casi empatados** (Train_R²=0.613, Val_R²=0.610). Esto valida que la multicolinealidad entre features no es un problema serio en este dataset. Si hubiera sido problemática, Ridge habría ganado claramente al estabilizar los coeficientes correlacionados.
+
+- **ElasticNet necesita ajuste:** Su performance (Val_R²=0.527) sugiere que con un GridSearch encontrando `alpha` y `l1_ratio` óptimos, podría competir con Lasso. Este es un recordatorio de que **la selección de hiperparámetros es crítica**.
+
+- **Polynomial es descartado:** Aunque Train_R²=0.685 luce tentador, el Val_R²=0.495 nos dice que el modelo no sirve. Este es un ejemplo perfecto de por qué **nunca deberíamos evaluar modelos solo en datos de entrenamiento**.
+
+---
