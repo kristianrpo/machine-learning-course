@@ -418,4 +418,44 @@ Esta sección implementa manualmente el algoritmo de descenso del gradiente para
 
 ---
 
+## 5. Regularización
 
+### 5.1 Comparación de Técnicas de Regularización
+
+**Descripción:**
+
+Este experimento compara cuatro enfoques para prevenir overfitting en regresión lineal: regresión lineal estándar (OLS), Ridge (L2), LASSO (L1) y Elastic Net (combinación L1+L2). Se utiliza un dataset sintético con **20 features** donde solo **5 son relevantes**, diseñado intencionalmente con **multicolinealidad** (features correlacionadas) para exponer las diferencias entre métodos.
+
+**Metodología:**
+- **Dataset:** 100 muestras, 20 features (solo 5 con coeficientes no-cero)
+- **Multicolinealidad inducida:** X₁, X₂, X₃ están altamente correlacionadas (r > 0.9)
+- **Split:** 70% entrenamiento, 30% prueba
+- **Hiperparámetros:** Ridge (α=1.0), LASSO (α=0.1), ElasticNet (α=0.1, l1_ratio=0.5)
+
+**Resultados Obtenidos:**
+
+![Comparación de Regularización](../_assets/image-08.png)
+
+**Tabla de Métricas:**
+
+| Modelo       | Train R² | Test R² | MSE Test | Features ≈ 0 | Sparsity |
+|--------------|----------|---------|----------|--------------|----------|
+| **Linear**   | 0.989    | 0.979   | 0.355    | 1            | 5%       |
+| **Ridge**    | 0.987    | 0.971   | 0.485    | 2            | 10%      |
+| **LASSO**    | 0.983    | 0.978   | 0.379    | **17**       | **85%**  |
+| **ElasticNet** | 0.982  | 0.973   | 0.455    | 10           | 50%      |
+
+**Interpretación Detallada:**
+
+**Interpretación Detallada:**
+
+1. **Regresión Lineal Estándar (OLS):** Este método logra los mejores resultados en los datos de prueba (R²=0.979, MSE=0.355) usando prácticamente todas las variables disponibles (19 de 20). En el escenario controlado de nuestro experimento, funciona excelentemente. Sin embargo, aquí hay un problema: al intentar usar todo lo que tiene disponible sin discriminar, el modelo se vuelve vulnerable cuando nos enfrentamos a problemas del mundo real con cientos o miles de variables **(sobreajustando)**. La pequeña diferencia entre entrenamiento (R²=0.989) y prueba (R²=0.979) nos dice que afortunadamente no está sobreajustando *en este caso específico*, pero el hecho de que solo elimine 1 variable de 20 nos muestra que no puede distinguir entre información útil y ruido.
+
+2. **Ridge (Regularización L2):** Al comprimir las variables, se sacrifica algo de precisión (MSE aumenta 36% comparado con Linear) a cambio de mayor estabilidad, especialmente cuando hay variables correlacionadas. El problema aquí es que Ridge es *demasiado* conservador para nuestro experimento, donde sabemos que 15 de 20 variables son ruido puro. Al mantener activas todas las variables (solo 10% llegan a cero), termina incorporando varianza innecesaria que empeora las predicciones. Dadas tantas variables irrelevantes, el comprimir no funciona.
+
+3. **LASSO (Regularización L1):** LASSO toma un enfoque radical pero efectivo: mediante la penalización J = MSE + α·Σ|θᵢ|, literalmente elimina variables poniéndolas en cero. En nuestro experimento, borra 17 de 20 variables (85%) y aun así mantiene un desempeño casi perfecto (R²=0.978, MSE=0.379). Perdemos solo 6.8% en precisión pero ganamos un modelo con 85% menos variables, lo que significa menor costo de recolección de datos, inferencias más rápidas, y explicaciones más claras. LASSO identificó correctamente que solo 3 variables importan (cerca de las 5 reales del dataset), creando un buen modelo. Es el método ideal cuando sospechamos que pocas variables contienen la información importante y aquí lo vemos evidenciado.
+
+4. **Elastic Net (L1 + L2):** Elastic Net al combinar las fortalezas de Ridge y LASSO, Con l1_ratio=0.5, logra un balance, pues elimina 50% de variables (10 de 20) con un desempeño intermedio (R²=0.973, MSE=0.455). Su verdadera ventaja aparece cuando hay grupos de variables correlacionadas: mientras LASSO tiende a "elegir caprichosamente" solo una del grupo, Elastic Net las mantiene juntas con coeficientes reducidos, mejorando la estabilidad. En nuestro caso, donde X₁, X₂ y X₃ están altamente correlacionadas (r>0.9), Elastic Net balancea la eliminación de ruido con la conservación de grupos informativos. Es la opción más segura cuando no sabemos de antemano cómo están relacionadas nuestras variables o cuando necesitamos que el modelo sea robusto ante cambios en los datos.
+
+
+---
