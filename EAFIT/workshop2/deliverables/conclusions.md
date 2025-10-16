@@ -561,3 +561,48 @@ Este desempeño excepcional (accuracy 98.8%, AUC 0.998) plantea la pregunta: **�
 
 
 ---
+
+## 8. Casos Prácticos Reales
+
+### 8.1 Predicción de Progresión de Diabetes
+
+**Descripción del Problema:**
+
+Este caso aborda un problema de **regresión médica** usando el dataset clásico de diabetes de sklearn, que contiene 442 pacientes con diabetes tipo 2 seguidos durante un año. El objetivo es predecir una **medida cuantitativa de progresión de la enfermedad** (valores entre 25-346, donde mayor valor indica peor progresión) a partir de 10 mediciones clínicas baseline: edad, sexo, índice de masa corporal (BMI), presión arterial promedio (BP), y 6 mediciones de suero sanguíneo (colesterol total TC, lipoproteínas LDL, HDL, relación colesterol/HDL, nivel de triglicéridos log(ltg), y glucosa glu). Todas las features están **pre-normalizadas** (media=0, std=1), facilitando la interpretación de coeficientes.
+
+**Metodología:**
+
+Se implementa un **pipeline completo con GridSearchCV** para optimizar el hiperparámetro de regularización α de **Ridge Regression** (L2). El uso de Ridge es justificado porque las 10 features presentan **multicolinealidad** (e.g., TC, LDL, HDL están correlacionadas; BMI y presión arterial también). La **validación cruzada de 5-fold** (CV=5) garantiza que cada pliegue tenga ~88 muestras, suficiente para estimar error generalizado sin sesgo por dataset pequeño.
+
+**Resultados Obtenidos:**
+
+![Predicción de Diabetes](../_assets/image-12.png)
+
+**Interpretación por Gráfica:**
+
+**1. Cross-Validation Scores (pocos datos):**
+
+La curva de MSE vs α revela tres regiones clave en el espacio de regularización:
+
+- **α < 1 (región izquierda):** MSE estable en ~3100-3150, mostrando que **regularización mínima** (α=0.001-1) produce desempeño similar a OLS. Esto nos permite entender que el problema no sufre overfitting severo con solo 10 features, validando que las features son informativas/señal predictiva.
+
+- **α ≈ 26.37 (línea roja discontinua):** El **óptimo encontrado por GridSearch** está en la región de transición. Aunque visualmente la curva parece plana entre α=1 y α=100, el algoritmo detectó un mínimo local en 26.37 que balancea bias-variance: suficiente regularización para reducir varianza sin introducir demasiado bias.
+
+- **α > 100 (región derecha):** El MSE se **dispara exponencialmente** pasando de 3200 en α=100 a >4100 en α=1000. Esto ocurre porque regularización extrema **fuerza todos los coeficientes hacia cero**, ignorando señales predictivas. La pendiente pronunciada confirma que α>100 introduce **underfitting crítico** ya que pierde capacidad de capturar relaciones (se simplificó mucho)
+
+**2. Predicciones en Test:**
+
+Predecir con exactitud la progresión de una enfermedad crónica es complicado. Nuestro modelo logra un R²=0.459, es decir, explica menos de la mitad de lo que realmente pasa con estos pacientes. Los puntos se dispersan formando una nube alrededor de la línea roja (que sería la predicción perfecta), con errores que pueden llegar hasta ±50 puntos en cualquier parte del rango. 
+
+Lo positivo es que **el modelo no está sesgado**: no tiende sobrestimar o subestimar demasiado, y tampoco "comprime" todas sus predicciones hacia un valor promedio (señal de que no nos exageramos en la regularización). Los casos donde falla más (como predecir 200 cuando la realidad es 300) probablemente sean pacientes cuya progresión dependió de caracteristicas las cuales no tenemos presentes.
+
+El 54% de varianza no explicada nos recuerda que la diabetes es multifactorial y que 10 mediciones en un solo momento no capturan toda la historia.
+
+**3. Importancia de Features:**
+
+El gráfico de importancia nos cuenta una historia coherente con lo que sabemos de diabetes. El **BMI (índice de masa corporal)** aparece como el predictor principal con un coeficiente de ~25, seguido muy de cerca por los **triglicéridos** (~20). Esto tiene sentido, pues es de conocimiento común desde la medicina que la obesidad y los lípidos elevados en sangre son los enemigos #1 y #2 cuando hablamos de complicaciones diabéticas. La **presión arterial** (~15) completa el podio.
+
+Algo que me parecio curioso anotar: la **glucosa** tiene muy poca importancia (coeficiente <10). Esto inicialmente parece contradictorio (¿no es la diabetes precisamente un problema de glucosa?), pero como todos los pacientes del dataset ya tienen diabetes diagnosticada, todos tienen glucosa elevada, entonces no es algo significativo.
+
+---
+
