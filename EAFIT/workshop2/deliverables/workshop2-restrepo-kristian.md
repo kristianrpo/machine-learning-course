@@ -2,6 +2,7 @@
 
 **Notebook:** Sesión 02: Regresión Lineal y Logística - Guía Completa  
 **Profesor:** Marco Terán  
+**Estudiante:** Kristian Restrepo Osorio
 **Curso:** Machine Learning - EAFIT  
 **Fecha:** 2025
 
