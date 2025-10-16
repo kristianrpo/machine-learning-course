@@ -459,3 +459,46 @@ Este experimento compara cuatro enfoques para prevenir overfitting en regresión
 
 
 ---
+
+## 7. Regresión Logística
+
+### 7.1 Implementación Manual y Evaluación
+
+**Descripción:**
+
+Esta sección implementa desde cero el algoritmo de **Regresión Logística**, el método estándar para problemas de clasificación binaria. A diferencia de la regresión lineal que predice valores continuos, la regresión logística utiliza la **función sigmoide** σ(z) = 1/(1 + e⁻ᶻ) para transformar la combinación lineal de features (z = θᵀx) en una probabilidad entre 0 y 1, interpretable como P(y=1|x). El modelo se entrena mediante Gradient Descent minimizando la **función de costo cross-entropy**: J(θ) = -(1/m)Σ[y·log(σ(θᵀx)) + (1-y)·log(1-σ(θᵀx))], que penaliza fuertemente las predicciones incorrectas con alta confianza.
+
+**Metodología:**
+- **Dataset sintético:** 200 muestras (100 por clase) con 2 features, dos clases separadas espacialmente (centroides en [2,2] y [-2,-2])
+- **Algoritmo:** Gradient Descent con learning rate α=0.1, 500 iteraciones
+- **Inicialización:** θ = [0, 0, 0] (intercepto + 2 coeficientes)
+- **Función de activación:** Sigmoide con clipping en [-500, 500] para estabilidad numérica
+
+**Resultados Obtenidos:**
+
+![Regresión Logística](../_assets/image-09.png)
+
+**Parámetros Entrenados:**
+- θ₀ (intercepto) = 0.127 → Pequeño desplazamiento de la frontera de decisión desde el origen
+- θ₁ (coef. Feature 1) = -1.831 → Feature 1 tiene fuerte peso **negativo** (empuja hacia Clase 0)
+- θ₂ (coef. Feature 2) = -1.603 → Feature 2 contribuye similarmente con peso negativo
+
+**Interpretación de los Parámetros:**
+
+Los coeficientes negativos en θ₁ y θ₂ revelan la geometría del problema: dado que la Clase 1 se generó en el cuadrante superior-derecho con centroide en [2,2] y la Clase 0 en el inferior-izquierdo [-2,-2], el modelo aprendió que **valores altos en ambas features aumentan la probabilidad de pertenecer a Clase 1**. Puntos donde x₁ + x₂ < -0.07 tienen probabilidad P(y=1) < 0.5 (región azul, Clase 0), mientras que puntos con x₁ + x₂ > -0.07 tienen P(y=1) > 0.5 (región roja, Clase 1).
+
+La **función sigmoide** transforma la combinación lineal z = θᵀx en probabilidades mediante σ(z) = 1/(1 + e⁻ᶻ): para un punto en [-3, -3], z = 0.127 - 1.831(-3) - 1.603(-3) = 10.43, lo que produce P(y=1) = σ(10.43) ≈ 0.99997 (casi certeza de Clase 1). Esto explica por qué el modelo alcanza **accuracy de 99%**: las clases están bien separadas espacialmente, y solo 1-2 muestras cercanas a la frontera.
+
+**Análisis de Convergencia:**
+![Regresión Logística](../_assets/image-10.png)
+
+El gráfico de convergencia revela propiedades clave del problema de optimización:
+
+1. **Problema convexo confirmado:** La función de costo cross-entropy es **estrictamente convexa** (según lo investigado) para regresión logística, garantizando la existencia de un **único mínimo global**. El Gradient Descent encuentra el mínimo sin quedar atrapado en óptimos locales.
+
+2. **Convergencia exponencial:** El costo cae de 0.52 (iteración 0, equivalente a clasificador aleatorio con θ=0) a ~0.015 en las primeras 100 iteraciones, representando una **reducción del 97%**. Este comportamiento exponencial es típico cuando el learning rate α=0.1 está bien calibrado (como bien se habló anteriormente): suficientemente grande para progresar rápido, pero no tan grande que cause inestabilidad (α > 0.5 causaría oscilaciones o divergencia).
+
+3. **Estabilización en mínimo global:** Después de la iteración 100, el costo se estabiliza en ~0.01, indicando que el algoritmo alcanzó el **mínimo global** donde ∇J(θ) ≈ 0. La ausencia de mejoras significativas post-iteración 100 sugiere que 500 iteraciones son más que suficientes.
+
+
+---
