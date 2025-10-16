@@ -669,3 +669,192 @@ La tabla resumen nos permite ver los números exactos y confirmar nuestras obser
 - **Polynomial es descartado:** Aunque Train_R²=0.685 luce tentador, el Val_R²=0.495 nos dice que el modelo no sirve. Este es un ejemplo perfecto de por qué **nunca deberíamos evaluar modelos solo en datos de entrenamiento**.
 
 ---
+
+### 9. Proyecto Final Integrador: Sistema de Scoring de Crédito
+
+**Descripción del Problema:**
+
+Este proyecto final sintetiza todos los conceptos aprendidos en el notebook para construir un **sistema completo de scoring crediticio end-to-end**. A diferencia de los casos anteriores donde nos enfocábamos en métricas de evaluación, aquí el objetivo es crear un producto funcional que podría desplegarse en un banco o fintech: dado un perfil de cliente (edad, ingresos, historial crediticio), el sistema debe (1) predecir la probabilidad de que incumpla pagos (default), (2) asignar un puntaje FICO-style entre 300-850, (3) determinar un límite de crédito apropiado, y (4) generar un reporte visual con explicaciones interpretables de los factores que influyeron en la decisión.
+
+El dataset sintético fue diseñado para simular un **escenario realista de alto riesgo**: 5,000 clientes con tasa de default del 43.6% (mucho más alta que la realidad, donde ronda 2-5%), forzando al modelo a trabajar en condiciones adversas. Las 10 features capturan los pilares del riesgo crediticio según literatura financiera: **capacidad de pago** (income, employment_years), **nivel de endeudamiento** (debt_to_income, credit_utilization), **historial de pagos** (missed_payments, payment_history_score), **estabilidad** (age, credit_age), y **señales de alerta** (bankruptcy, credit_inquiries). Además, se aplicó **feature engineering** para crear 4 variables derivadas (income_per_year, payment_history_score, credit_age, financial_stress) que capturan interacciones no lineales entre factores de riesgo.
+
+**Metodología:**
+
+El sistema implementa un pipeline completo de Machine Learning con las siguientes etapas:
+
+1. **Preprocesamiento y Feature Engineering:**
+   - Estandarización z-score de todas las features numéricas
+   - Creación de 4 features derivadas mediante transformaciones no lineales (e.g., financial_stress = debt_to_income × credit_utilization)
+   - Resultado: 14 features totales para el modelo
+
+2. **Modelado con Regresión Logística Regularizada:**
+   - Algoritmo: LogisticRegression con regularización L2 (Ridge)
+   - Hiperparámetros: C=0.1 (fuerte regularización), class_weight='balanced' (penalizar más errores en clase minoritaria)
+   - Justificación de hiperparámetros:
+     - **C=0.1** introduce fuerte regularización para evitar overfitting en las 14 features, especialmente porque varias están correlacionadas (debt_to_income con credit_utilization, income con employment_years)
+     - **class_weight='balanced'** ajusta automáticamente los pesos como 1:1.3 (no-default:default) para compensar el desbalance 56.4% vs 43.6%, evitando que el modelo simplemente prediga "no-default" para todos (caso de de desbalanceo de clases y resuesta genérica)
+
+3. **Conversión de Probabilidades a Credit Score:**
+   - Fórmula: Score = 300 + 550 × (1 - P(default))²
+   - La función cuadrática amplifica diferencias en el rango bajo de probabilidad: P=0.2 → Score=652, P=0.3 → Score=569 (83 puntos de diferencia), mientras que P=0.8 → Score=322, P=0.9 → Score=305.5 (solo 16.5 puntos)
+   - Esto refleja la práctica bancaria donde scores bajos (300-550) colapsan rápidamente porque todos representan alto riesgo, mientras que scores altos (650-850) discriminan finamente entre diferentes niveles de "buen crédito"
+
+4. **Determinación de Límite de Crédito:**
+   - Fórmula base: Limit = Income × [0.2 + 0.3 × (Score-300)/550]
+   - Multiplicadores por categoría de score: Excelente (≥750) ×1.5, Bueno (700-749) ×1.2, Regular (650-699) ×1.0, Malo (600-649) ×0.7, Muy Malo (<600) ×0.3
+   - Ejemplo: Cliente con Income=$50k y Score=700 → Base=$50k × [0.2 + 0.3 × 400/550] = $21,818 → Límite final = $21,818 × 1.2 = $26,181
+   - Esta lógica dual (base lineal + multiplicador categórico) balancea capacidad de pago objetiva (ingreso) con perfil de riesgo subjetivo (score)
+
+**Resultados Obtenidos:**
+
+**Evaluación Global del Sistema:**
+
+| Métrica    | Valor  | Interpretación                                      |
+|------------|--------|-----------------------------------------------------|
+| Accuracy   | 0.563  | 56.3% de predicciones correctas                     |
+| AUC-ROC    | 0.586  | Capacidad de discriminación apenas mejor que azar   |
+| Precision  | 0.499  | De los que predice default, 49.9% realmente lo son  |
+| Recall     | 0.516  | De los defaults reales, detecta solo el 51.6%       |
+
+**Análisis Crítico del Desempeño:**
+
+El sistema muestra **desempeño mediocre**, apenas superior a un clasificador aleatorio (accuracy 50%, AUC 0.5). Esto contrasta drásticamente con el caso de Breast Cancer (accuracy 98.8%, AUC 0.998) y plantea la pregunta: **¿por qué falla aquí?** Tres factores explican los resultados:
+
+1. **Complejidad intrínseca del problema de scoring crediticio:**
+   - Predecir default es **fundamentalmente más difícil** que diagnosticar cáncer porque involucra **comportamiento humano futuro**, no mediciones físicas objetivas
+   - Un tumor maligno tiene características celulares distintivas (núcleos grandes, textura irregular) medibles con precisión, mientras que un cliente puede tener perfil numérico "bueno" (ingresos altos, deudas bajas) pero decidir no pagar por circunstancias impredecibles (pérdida de empleo, divorcio, enfermedad)
+   - La tasa de default del 43.6% en el dataset es **extremadamente alta** (realidad: 2-5%), creando un escenario donde casi mitad de la población incumple, eliminando la separabilidad natural entre "buenos" y "malos" clientes
+
+2. **Limitaciones del dataset sintético:**
+   - Las 10 features capturan solo **factores cuantitativos** (ingresos, deudas, edad), pero ignoran **factores cualitativos críticos** que los bancos reales utilizan:
+     - **Información laboral:** Tipo de empleo (formal vs informal), sector (estable vs volátil), tamaño de empresa
+     - **Historial de pagos detallado:** No solo "número de pagos atrasados" (missed_payments), sino patrones temporales (¿cuándo fueron los atrasos? ¿recientes o hace años?)
+     - **Contexto macroeconómico:** Recesión, inflación, desempleo en el sector del cliente
+     - **Redes sociales/comportamiento digital:** Algunos fintechs modernos usan datos alternativos (uso de smartphone, actividad en redes) que correlacionan con default
+   - El generador sintético utiliza relaciones lineales simples (default_prob ∝ 0.5×debt_to_income + 0.3×credit_utilization + ...) cuando la realidad tiene **interacciones no lineales complejas** (e.g., debt_to_income=0.5 es riesgoso solo si credit_utilization también es alto)
+
+3. **Elección de modelo y regularización:**
+   - Regresión Logística es un modelo **lineal**, asumiendo que log(P(default)/(1-P(default))) = θᵀx
+   - Esta hipótesis de lineal es **demasiado "simplista"** para capturar interacciones de orden superior.
+   - La regularización fuerte (C=0.1) **simplifica aún más** el modelo, penalizando coeficientes grandes que podrían capturar señales débiles
+
+**Análisis Exploratorio del Dataset:**
+
+![Análisis Exploratorio](../_assets/image-14.png)
+
+**Interpretación de los Gráficos Exploratorios:**
+
+Estos 6 gráficos de barras revelan cómo diferentes variables predictoras se relacionan con la tasa de default:
+
+**1. Default vs Age:**
+La tasa de default se mantiene **notablemente estable (~43-45%)** en todos los rangos de edad (21-38, 38-44, 44-52, 52-80), sin mostrar el patrón esperado de "clientes jóvenes = mayor riesgo". Esta falta de tendencia sugiere dos cosas:
+   1. Edad por sí sola es un **predictor débil** en este dataset sintético
+   2. El generador sintético no incorporó correlación edad-default, un sesgo respecto a la realidad donde clientes <25 años suelen tener tasas de default 20-30% superiores por menor estabilidad laboral e historial crediticio corto.
+
+**2. Default vs Income:**
+**Ingresos altos correlacionan con tasas de default ligeramente mayores**: el bin más bajo ($1,575-$23,000) tiene 44% de default, mientras que el más alto ($71,000-$611,000) alcanza 45%. Esto viola la intuición económica básica (mayor capacidad de pago → menor riesgo). Esta correlación invertida explica el bajo AUC del modelo: la variable que debería ser el predictor más fuerte (income) está enviando señales contradictorias. El modelo probablemente asignará coeficiente pequeño o incluso positivo a 'income', empeorando las predicciones.
+
+**3. Default vs Debt_to_Income:**
+Aquí sí observamos la **tendencia esperada positiva fuerte**: el bin más bajo (debt_to_income=0.0-0.2) tiene 36% de default, incrementándose progresivamente hasta 54% en el bin más alto (0.6-0.8). Esto valida la lógica financiera: clientes con 60-80% de sus ingresos comprometidos en deudas tienen ~50% más riesgo que aquellos con <20%. El salto pronunciado entre bins (36%→42%→48%→54%) confirma que debt_to_income es uno de los **predictores más informativos** en el dataset.
+
+**4. Default vs Credit_Utilization:**
+Similar a debt_to_income, credit_utilization muestra **correlación positiva clara con default**: 39% en el bin bajo (0.0-0.2) escalando a 56% en el bin alto (0.8-1.0). La utilización de crédito es el % del límite de tarjeta usado (e.g., límite $10k, saldo $8k → 80%). Tasas >50% son señales de **estrés financiero** (el cliente necesita acceder al máximo crédito disponible), lo que explica el incremento gradual en default. El modelo capturará esta relación con coeficiente positivo significativo (~0.15), posicionando credit_utilization como el segundo predictor más importante después de debt_to_income.
+
+**5. Default vs Missed_Payments (Inferior Centro):**
+El gráfico muestra un patrón no monotónico peculiar: la tasa de default **aumenta de 43% a 68% cuando missed_payments pasa de 0 a 3**, pero luego **cae a 34% en el bin de 4 pagos atrasados**. El pico en 3 pagos atrasados tiene sentido (historial malo → alto riesgo), pero la caída en 4+ es **contraintuitiva** y probablemente sea debido a que el bin de 4+ pagos atrasados tiene muy pocas muestras, haciendo que la tasa del 34% sea poco confiable (alta varianza). Alternativamente, podría haber un **sesgo de supervivencia** (presente en los tipos de riesgos que vimos en clase): clientes con 4+ atrasos ya fueron rechazados o entraron en bancarrota, quedando solo los "sobrevivientes" más resilientes en el dataset. 
+
+**Análisis de Importancia de Features:**
+
+![Importancia Global de Features](../_assets/image-15.png)
+
+**Interpretación del Gráfico de Importancia:**
+
+Este gráfico de barras horizontales muestra los **valores absolutos de los coeficientes** (|θᵢ|) del modelo de Regresión Logística después del entrenamiento. El ranking revela hallazgos sobre las variables del modelo que se consideran más influyentes:
+
+**Top 3 Predictores Dominantes:**
+
+1. **debt_to_income (|coef|≈0.25, mayor barra):** Es el predictor más importante con margen significativo. Esto valida la intuición financiera: clientes con mayor proporción de ingresos atados a deudas tienen menos margen para absorber shocks (pérdida de empleo, gastos médicos) y caen en default más fácilmente. El modelo aprendió correctamente esta relación fundamental del riesgo crediticio.
+
+2. **credit_utilization (|coef|≈0.15, segunda barra):** El segundo predictor más importante refuerza el patrón de "estrés financiero": clientes que usan >70% de su límite de crédito disponible señalan que están **al límite de su capacidad** (no tienen colchón financiero).
+
+3. **home_owner (|coef|≈0.13, tercera barra):** Sorprendentemente, ser propietario de vivienda está asociado con **mayor riesgo** de default (coeficiente positivo), lo cual es **contraintuitivo**. En realidad financiera, home_owner debería tener coeficiente negativo (ser dueño = estabilidad = menor riesgo). 
+
+**Predictores Secundarios (|coef| 0.05-0.10):**
+
+4. **bankruptcy (|coef|≈0.12):** Haber declarado bancarrota es señal fuerte de riesgo histórico, y el modelo lo captura con coeficiente positivo significativo. Esto es correcto financieramente.
+
+5. **age (|coef|≈0.06):** Como se dijo anteriormente sobre el gráfico exploratorio, edad tiene muy poca importancia. El modelo prácticamente la ignora porque no hay correlación con default en el dataset. Lo cual es curioso, ya que en realidad esto si tiene ciertas implicaciones de riesgo.
+
+**Features Derivadas (Feature Engineering):**
+
+6. **income_per_year (|coef|≈0.05):** Este feature creado manualmente (income/(age-18+1)) intenta capturar "capacidad de ahorro ajustada por edad". Su baja importancia sugiere que no añadió información útil más allá de income sola.
+
+7. **employment_years (|coef|≈0.04):** Años de empleo tiene impacto mínimo, posiblemente porque en el dataset sintético no se correlacionó con default (empleos de 1 año vs 20 años tienen tasas similares).
+
+8. **credit_age (|coef|≈0.03):** Este feature derivado (employment_years × credit_accounts) intenta medir "madurez crediticia", pero falla en capturar señal útil/predictiva.
+
+**Predictores Casi Irrelevantes (|coef| <0.03):**
+
+9-10. **missed_payments, payment_history_score (|coef|≈0.02):** Contraintuitivamente, el historial de pagos atrasados tiene **importancia mínima** en el modelo. Esto contradice la práctica bancaria donde missed_payments es un **red flag crítico**. A lo mejor esta relación no era lineal.
+
+
+**Reporte Individual de Scoring (Cliente Ejemplo):**
+
+![Reporte de Scoring](../_assets/image-16.png)
+
+**Interpretación del Reporte Visual:**
+
+Este dashboard de 4 paneles muestra el análisis completo para un **cliente individual** (el primer registro del test set).
+
+**1. Credit Score:**
+
+El medidor tipo velocímetro visualiza el score de **394** en la escala FICO (300-850), cayendo en el segmento **rojo** correspondiente a "Muy Malo" (300-600). La aguja apunta claramente hacia el extremo inferior, indicando **alto riesgo crediticio**. La división de colores (rojo→naranja→amarillo→verde claro→verde oscuro) mapea las categorías estándar de scoring:
+
+**2. Riesgo de Default:**
+
+Las barras horizontales apiladas muestran la **probabilidad predicha por el modelo**: 58.5% de probabilidad de default (barra roja) vs 41.5% de no-default (barra verde). Este desequilibrio fuerte (58.5% > umbral 50%) es lo que clasifica al cliente como **alto riesgo** y justifica el score bajo. Para contexto:
+- **P(default) < 10%:** Cliente de bajo riesgo (score >750)
+- **P(default) 10-30%:** Riesgo moderado (score 650-750)
+- **P(default) 30-50%:** Riesgo alto (score 600-650)
+- **P(default) > 50%:** Riesgo crítico (score <600), como este cliente
+
+**3. Factores Principales:**
+
+Este gráfico de barras horizontales identifica las **5 features con mayor impacto** en la predicción de este cliente específico, usando la técnica de **contribuciones individuales**: Impacto = Valor_estandarizado × Coeficiente. Las barras rojas indican contribución positiva al riesgo (aumentan P(default)), mientras que verdes reducen riesgo:
+
+**Factores que AUMENTAN el riesgo (Barras Rojas):**
+
+1. **credit_utilization (Impacto +0.21, barra más larga):** Es el factor dominante. El cliente tiene credit_utilization estandarizado alto. Esto señala **estrés financiero agudo**: el cliente está "maxeando" sus tarjetas, sin margen para emergencias.
+
+2. **home_owner (Impacto +0.16):** Como discutimos, este coeficiente debería ser negativo en realidad. El cliente es propietario (home_owner=1), lo que erróneamente incrementa su riesgo según el modelo.
+
+**Factores que REDUCEN el riesgo (Barras Verdes):**
+
+3. **credit_age (Impacto -0.04, barra corta verde):** El cliente tiene credit_age (employment_years × credit_accounts) relativamente alto, indicando **madurez crediticia**. Esto reduce marginalmente su riesgo.
+
+4. **bankruptcy (Impacto -0.03):** El cliente **NO** tiene bancarrota en su historial (bankruptcy=0), lo que es favorable. Sin embargo, el impacto negativo pequeño sugiere que este factor tiene poco peso en la decisión final.
+
+5. **employment_years (Impacto -0.03, similar a bankruptcy):** El cliente tiene varios años de empleo, contribuyendo levemente a reducir riesgo por estabilidad laboral.
+
+**Interpretación agregada:** El perfil del cliente está **dominado por señales negativas** (credit_utilization + home_owner suman +0.37) que superan ampliamente las señales positivas (credit_age + bankruptcy + employment_years suman -0.10). El balance neto de +0.27 explica la alta probabilidad de default (58.5%).
+
+**4. Resumen y Recomendaciones:**
+
+Este panel textual consolida la decisión del sistema en formato ejecutivo:
+
+**RESUMEN DE CRÉDITO:**
+- **Límite Aprobado: $2,958:** El sistema determina que el cliente solo puede manejar responsablemente ~$3k de crédito. Este límite tan bajo refleja que el banco minimiza exposición al riesgo: si el cliente incumple, la pérdida es mínima.
+
+- **Categoría de Riesgo: Muy Malo:** Clasificación derivada directamente del score <600, señalando que este cliente está en el **bottom 10-15%** de todos los solicitantes.
+
+- **Probabilidad de Default: 58.5%:** Reiteración de la probabilidad para énfasis, mostrando que **más de la mitad** de clientes con este perfil terminan en default.
+
+**RECOMENDACIONES:**
+
+El sistema generó dos recomendaciones automáticas basadas en el análisis de factores:
+
+1. **"Score bajo requiere mejoras urgentes":** Mensaje general para scores <650, alertando al cliente que necesita acción correctiva antes de solicitar créditos mayores.
+
+2. **"Usar menos del 30% del crédito disponible":** Recomendación específica generada porque credit_utilization fue el factor de impacto positivo más grande (+0.21). El sistema detectó que si el cliente reduce utilization de ~70% a <30%, su P(default) caería significativamente (probablemente a ~40-45%), elevando el score a ~500-550 (categoría "Malo" pero mejorando límite a ~$5-7k).
+
+---
