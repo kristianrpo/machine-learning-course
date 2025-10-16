@@ -606,7 +606,7 @@ Algo que me parecio curioso anotar: la **glucosa** tiene muy poca importancia (c
 
 ---
 
-### 9.2 Sistema Completo de Predicción de Precios Inmobiliarios
+### 8.2 Sistema Completo de Predicción de Precios Inmobiliarios
 
 **Descripción del Problema:**
 
