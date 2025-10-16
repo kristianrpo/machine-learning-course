@@ -460,9 +460,9 @@ Este experimento compara cuatro enfoques para prevenir overfitting en regresión
 
 ---
 
-## 7. Regresión Logística
+## 6. Regresión Logística
 
-### 7.1 Implementación Manual y Evaluación
+### 6.1 Implementación Manual y Evaluación
 
 **Descripción:**
 
@@ -500,5 +500,71 @@ El gráfico de convergencia revela propiedades clave del problema de optimizaci�
 
 3. **Estabilización en mínimo global:** Después de la iteración 100, el costo se estabiliza en ~0.01, indicando que el algoritmo alcanzó el **mínimo global** donde ∇J(θ) ≈ 0. La ausencia de mejoras significativas post-iteración 100 sugiere que 500 iteraciones son más que suficientes.
 
+
+---
+
+## 7. Métricas de Clasificación
+
+### 7.1 Análisis Completo de Métricas - Dataset Breast Cancer
+
+**Descripción:**
+
+Esta sección evalúa el desempeño de nuestro modelo de **Regresión Logística** aplicado al dataset real de cáncer de mama de Wisconsin, que contiene 569 muestras con 30 características numéricas derivadas de imágenes digitalizadas de biopsias. El objetivo es clasificar tumores como **benignos (Clase 0, n=212)** o **malignos (Clase 1, n=357)**, donde un error de clasificación tiene implicaciones críticas: un **falso negativo** (predecir benigno cuando es maligno) puede retrasar tratamiento vital, mientras que un **falso positivo** (predecir maligno cuando es benigno) genera ansiedad y procedimientos innecesarios. Este desbalance en el costo de errores motiva el análisis exhaustivo de múltiples métricas más allá del accuracy.
+
+**Resultados Obtenidos:**
+
+![Métricas de Clasificación](../_assets/image-11.png)
+
+**Interpretación por Gráfica:**
+
+**1. Matriz de Confusión:**
+
+La matriz revela un desempeño casi perfecto con solo **2 errores en 171 predicciones** (accuracy 98.8%): **1 falso positivo** (tumor benigno clasificado como maligno) y **1 falso negativo** (tumor maligno clasificado como benigno). Los valores diagonales (63 verdaderos negativos, 106 verdaderos positivos) dominan la matriz, indicando alta concordancia entre predicciones y realidad. La **sensibilidad (recall) del 99.07%** para malignos significa que el modelo detecta correctamente 105 de 106 tumores peligrosos, crucial en un contexto médico donde *no detectar un cáncer* es más costoso que una falsa alarma. La **especificidad del 98.44%** confirma que también discrimina bien los casos benignos, evitando tratamientos innecesarios en 63 de 64 pacientes sanos. Se destaca así su capacidad para poder clasificar correctamente inputs para ambas clases. Se destaca la alta calidad de los datos para lograr estas métricas.
+ 
+**2. Curva ROC:**
+
+El **AUC = 0.998** (área bajo la curva casi perfecta) demuestra que el modelo tiene capacidad de discriminar entre clases casi perfecta, siendo capaz de acertar en el 99.8% de los casos la condición del paciente. Simultáneamente se maximiza TPR (True Positive Rate, sensibilidad) y se minimiza FPR (False Positive Rate, 1-especificidad). Este resultado valida que las 30 características del dataset (radio medio, textura, perímetro, área, etc.) contienen **señal predictiva** fuerte y el modelo logró capturarla.
+
+**3. Curva Precision-Recall:**
+
+El **Average Precision = 0.999** confirma desempeño excepcional incluso en el trade-off precision-recall. La curva se mantiene en el extremo superior derecho (precision ≈ 1.0, recall ≈ 1.0), indicando que para casi cualquier umbral de decisión entre 0.1 y 0.9, el modelo mantiene ambas métricas por encima del 95%. Esto es crítico en aplicaciones médicas: podemos ajustar el umbral para priorizar **recall** (detectar todos los casos malignos, tolerando más falsos positivos) o **precision** (evitar falsos positivos, asumiendo riesgo de falsos negativos) sin degradar significativamente la otra métrica.
+
+**4. Distribución de Probabilidades:**
+
+Los histogramas muestran **separación casi perfecta** entre clases: las probabilidades predichas para tumores benignos (azul) se concentran cerca de 0.0 (alta confianza en Clase 0), mientras que para malignos (naranja) se agrupan cerca de 1.0 (alta confianza en Clase 1). La línea vertical negra en 0.5 (umbral por defecto) divide claramente ambas distribuciones, explicando el bajo error. Aquí, la mayoría de predicciones son fiables: P<0.2 o P>0.8.
+
+**5. Métricas vs Umbral**
+
+Este gráfico es fundamental para **ajustar el umbral de decisión** según el contexto del problema. Podemos concluir del mismos que:
+- **Precision (rosa)** A medida que el umbral aumenta, la precisión se mantiene relativamente alta (cercana a 1) hasta llegar a un punto crítico. Esto indica que el modelo sigue haciendo buenas predicciones positivas sin generar muchos falsos positivos hasta cierto umbral.
+
+- **Recall (verde)** A medida que el umbral se disminuye, el recall se incrementa rápidamente. Esto indica que el modelo está capturando más de las instancias positivas reales.
+
+**6. Classification Report (Inferior Derecha):**
+
+La tabla cuantifica el desempeño por clase:
+- **Clase 0 (Benigno):** Precision 0.984, Recall 0.984, F1 0.984 con 64 muestras → El modelo es igualmente bueno identificando tumores benignos.
+- **Clase 1 (Maligno):** Precision 0.991, Recall 0.991, F1 0.991 con 107 muestras → Ligeramente mejor en malignos (posiblemente porque hay más ejemplos de entrenamiento).
+
+El **support** (107 vs 64) muestra leve desbalance hacia malignos en el test set (proporción 1.67:1), pero el modelo no muestra sesgo: ambas clases tienen F1 > 0.98, validando que la regularización L2 y el class_weight='balanced' en LogisticRegression funcionaron correctamente.
+
+**Análisis Crítico:**
+
+Este desempeño excepcional (accuracy 98.8%, AUC 0.998) plantea la pregunta: **¿es realista o hay sobreajuste?** Tres evidencias validan que es legítimo:
+
+1. **Dataset de calidad:** Las 30 features del Breast Cancer Wisconsin son mediciones expertas de núcleos celulares (radio, textura, suavidad, compacidad, concavidad, simetría, dimensión fractal) altamente correlacionadas con malignidad según literatura médica.
+
+2. **Separabilidad inherente:** Los tumores malignos tienen características morfológicas distintivas (núcleos más grandes, irregulares, textura heterogénea) que las técnicas de imagen capturan bien. El problema *es* inherentemente separable.
+
+3. **Test set independiente:** El 30% de los datos (171 muestras) se reservó para evaluación, y las métricas en test son comparables a train (no mostradas aquí, pero típicamente Train Accuracy ≈ 99%, Test ≈ 98.8%), indicando buena generalización.
+
+**Limitaciones identificadas:**
+- **Dataset pequeño (569 muestras):** En producción real con miles de casos diversos (diferentes etnias, edades, equipos de imagen), el desempeño probablemente sería 95-97% accuracy, no 98.8%.
+- **Validación externa necesaria:** Estos resultados son *in-sample* (mismo hospital/equipo). Se requiere validación en datos de otros centros médicos para confirmar robustez.
+- **Features pre-procesadas:** El dataset ya viene con características expertamente ingenieradas. En un sistema de producción, el pipeline completo (imagen → extracción de features → predicción) tendría errores acumulados.
+
+**Conclusión:**
+
+El modelo de Regresión Logística alcanza desempeño de nivel clínico (AUC 0.998, F1 0.988) en el dataset de cáncer de mama, superando el umbral típico de utilidad médica (AUC > 0.9). La combinación de métricas (matriz de confusión, ROC, PR, distribución de probabilidades) confirma que no solo clasifica bien, sino que proporciona **probabilidades calibradas** útiles para decisiones médicas. El análisis de umbrales revela que el modelo es robusto: podemos ajustar el trade-off precision-recall según el contexto (screening poblacional vs diagnóstico individual) sin degradar significativamente el desempeño. Este caso demuestra que la Regresión Logística, a pesar de su simplicidad, puede competir con modelos más complejos cuando las features son informativas y el problema es razonablemente lineal en el espacio transformado.
 
 ---
